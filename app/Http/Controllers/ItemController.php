@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Item;
+use App\Http\Requests\ExhibitionRequest;
+
+class ItemController extends Controller
+{
+    public function index()
+    {
+        $items = Item::all();
+        return view('items.index', compact('items'));
+    }
+
+    public function show($id)
+    {
+        $item = \App\Models\Item::findOrFail($id);
+        return view('items.show', compact('item'));
+    }
+
+    public function create()
+    {
+        return view('items.create');
+    }
+
+    public function store(ExhibitionRequest $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|integer',
+            'condition' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $item = new \App\Models\Item();
+        $item->user_id = auth()->id();
+        $item->name = $validated['name'];
+        $item->description = $validated['description'] ?? '';
+        $item->price = $validated['price'];
+        $item->condition = $validated['condition'];
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('item_images', 'public');
+            $item->image_path = 'storage/' . $path;
+        }
+
+        $item->save();
+
+        return redirect()->route('items.index')->with('success', '商品を出品しました');
+    }
+}
