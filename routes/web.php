@@ -12,6 +12,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/sell', [ItemController::class, 'create'])->name('items.create');
     Route::post('/sell', [ItemController::class, 'store'])->name('items.store');
+    Route::post('/item/{item}/like', [App\Http\Controllers\LikeController::class, 'store'])->name('items.like');
+    Route::delete('/item/{item}/like', [App\Http\Controllers\LikeController::class, 'destroy'])->name('items.unlike');
 });
 
 /*
