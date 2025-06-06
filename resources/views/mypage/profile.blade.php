@@ -38,6 +38,13 @@
     <a href="{{ url('/') }}">
         <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" style="height: 40px;">
     </a>
+
+    @if(auth()->check())
+    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+        @csrf
+        <button type="submit">ログアウト</button>
+    </form>
+    @endif
     
     <div class="container">
         <h1>プロフィール設定</h1>

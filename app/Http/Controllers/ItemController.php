@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Http\Requests\ExhibitionRequest;
+use App\Http\Requests\CommentRequest;
+use App\Models\Comment;
 
 class ItemController extends Controller
 {
@@ -17,7 +19,8 @@ class ItemController extends Controller
     public function show($id)
     {
         $item = \App\Models\Item::findOrFail($id);
-        return view('items.show', compact('item'));
+        $comments = \App\Models\Comment::where('item_id', $id)->with('user')->latest()->get();
+        return view('items.show', compact('item', 'comments'));
     }
 
     public function create()
@@ -50,5 +53,16 @@ class ItemController extends Controller
         $item->save();
 
         return redirect()->route('items.index')->with('success', '商品を出品しました');
+    }
+
+    public function comment(CommentRequest $request, $itemId)
+    {
+        Comment::create([
+            'user_id' => auth()->id(),
+            'item_id' => $itemId,
+            'content' => $request->input('content'),
+        ]);
+
+        return redirect()->route('items.show', $itemId)->with('success', 'コメントを投稿しました');
     }
 }

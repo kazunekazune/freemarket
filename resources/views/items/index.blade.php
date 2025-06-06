@@ -11,6 +11,13 @@
         <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" style="height: 40px;">
     </a>
 
+    @if(auth()->check())
+    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+        @csrf
+        <button type="submit">ログアウト</button>
+    </form>
+    @endif
+
     <h1>商品一覧</h1>
     <ul>
         @forelse($items as $item)

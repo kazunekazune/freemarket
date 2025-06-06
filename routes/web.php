@@ -14,6 +14,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sell', [ItemController::class, 'store'])->name('items.store');
     Route::post('/item/{item}/like', [App\Http\Controllers\LikeController::class, 'store'])->name('items.like');
     Route::delete('/item/{item}/like', [App\Http\Controllers\LikeController::class, 'destroy'])->name('items.unlike');
+    Route::post('/item/{item}/comment', [App\Http\Controllers\ItemController::class, 'comment'])->name('items.comment');
+    Route::post('/purchase/{item}', [App\Http\Controllers\PurchaseController::class, 'store'])->name('purchase.store');
 });
 
 /*
