@@ -6,11 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Purchase;
 use App\Models\Item;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\PurchaseRequest;
 
 class PurchaseController extends Controller
 {
-    public function store($itemId)
+    public function store(PurchaseRequest $request, $itemId)
     {
+        $validated = $request->validated();
         $user = Auth::user();
 
         $alreadyPurchased = Purchase::where('user_id', $user->id)
@@ -32,5 +34,12 @@ class PurchaseController extends Controller
         $item->save();
 
         return redirect()->route('items.show', $itemId)->with('success', '購入が完了しました');
+    }
+
+    public function show($itemId)
+    {
+        $item = \App\Models\Item::findOrFail($itemId);
+        $user = auth()->user();
+        return view('purchase.show', compact('item', 'user'));
     }
 }

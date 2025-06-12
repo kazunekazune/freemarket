@@ -112,7 +112,7 @@
         @elseif($item->user_id === auth()->id())
         <p>※自分の商品は購入できません</p>
         @else
-        <form method="POST" action="{{ route('purchase.store', $item->id) }}">
+        <form method="GET" action="{{ route('purchase.show', $item->id) }}">
             @csrf
             <button type="submit">購入する</button>
         </form>
