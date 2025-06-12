@@ -2,6 +2,11 @@
 <html lang="ja">
 
 <head>
+    <form method="GET" action="{{ route('items.index') }}">
+        <input type="text" name="keyword" placeholder="商品名で検索">
+        <button type="submit">検索</button>
+    </form>
+    
     <meta charset="UTF-8">
     <title>商品一覧</title>
 

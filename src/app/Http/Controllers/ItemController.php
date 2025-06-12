@@ -12,8 +12,15 @@ use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $keyword = $request->input('keyword');
+        $query = Item::query();
+
+        if ($keyword) {
+            $query->where('name', 'like', '%' . $keyword . '%');
+        }
+
         if (auth()->check()) {
             // ログイン中は自分が出品した商品を除外する
             $items = \App\Models\Item::where('user_id', '!=', auth()->id())->get();
