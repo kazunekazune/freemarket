@@ -61,21 +61,21 @@ docker-compose exec php php artisan storage:link
 erDiagram
     users {
         unsigned_bigint id PK "主キー"
-        varchar name NN
-        varchar email UK, NN
-        timestamp email_verified_at
-        varchar profile_image
+        varchar name NN "名前"
+        varchar email UK, NN "メールアドレス"
+        timestamp email_verified_at "メール認証日時"
+        varchar profile_image "プロフィール画像"
     }
 
     items {
         unsigned_bigint id PK "主キー"
         unsigned_bigint user_id FK "users(id)への外部キー"
-        varchar name NN
-        text description NN
-        integer price NN
-        varchar condition NN
-        varchar image_path
-        timestamp sold_at
+        varchar name NN "商品名"
+        text description NN "商品説明"
+        integer price NN "価格"
+        varchar condition NN "商品の状態"
+        varchar image_path "画像パス"
+        timestamp sold_at "販売日時"
     }
 
     likes {
@@ -88,7 +88,7 @@ erDiagram
         unsigned_bigint id PK "主キー"
         unsigned_bigint user_id FK "users(id)への外部キー"
         unsigned_bigint item_id FK "items(id)への外部キー"
-        text comment NN
+        text comment NN "コメント内容"
     }
 
     purchases {
@@ -99,7 +99,7 @@ erDiagram
 
     categories {
         unsigned_bigint id PK "主キー"
-        varchar name UK, NN
+        varchar name UK, NN "カテゴリー名"
     }
 
     category_item {
