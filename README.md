@@ -57,11 +57,6 @@ docker-compose exec php php artisan storage:link
 
 ## ER 図
 
-![ER図](er_diagram.png)
-
-<details>
-<summary>ER図の元データ (GitHub上では自動で図になります)</summary>
-
 ```mermaid
 erDiagram
     users {
@@ -124,8 +119,6 @@ erDiagram
     items }o--o{ category_item : "持つ"
     categories }o--o{ category_item : "属する"
 ```
-
-</details>
 
 ---
 
