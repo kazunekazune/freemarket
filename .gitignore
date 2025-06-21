@@ -3,7 +3,8 @@
 
 # Laravel用
 src/.env
-src/.env.*
+# src/.env.*
+!src/.env.example
 src/vendor/
 src/node_modules/
 src/storage/*.key
