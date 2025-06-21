@@ -1,51 +1,65 @@
-<!DOCTYPE html>
-<html lang="ja">
+@extends('layouts.app')
 
-<head>
-    <form method="GET" action="{{ route('items.index') }}">
-        <input type="text" name="keyword" placeholder="商品名で検索">
-        <button type="submit">検索</button>
-    </form>
-    
-    <meta charset="UTF-8">
-    <title>商品一覧</title>
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        @if(isset($page) && $page === 'mylist')
+        マイリスト
+        @else
+        商品一覧
+        @endif
+    </h1>
 
-    @if(auth()->check())
-    <a href="{{ route('items.create') }}" style="margin-left: 16px; background: #ff6666; color: #fff; padding: 8px 16px; border-radius: 4px; text-decoration: none;">
-        出品
-    </a>
-    @endif
-</head>
+    @auth
+    <div class="btn-group" role="group">
+        <a href="{{ route('items.index', ['page' => 'all', 'keyword' => $keyword ?? '']) }}"
+            class="btn btn-outline-primary {{ (!isset($page) || $page === 'all') ? 'active' : '' }}">
+            全商品
+        </a>
+        <a href="{{ route('items.index', ['page' => 'mylist', 'keyword' => $keyword ?? '']) }}"
+            class="btn btn-outline-primary {{ (isset($page) && $page === 'mylist') ? 'active' : '' }}">
+            マイリスト
+        </a>
+    </div>
+    @endauth
+</div>
 
-<body>
-    <a href="{{ url('/') }}">
-        <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" style="height: 40px;">
-    </a>
-
-    @if(auth()->check())
-    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-        @csrf
-        <button type="submit">ログアウト</button>
-    </form>
-    @endif
-
-    <h1>商品一覧</h1>
-    <ul>
-        @foreach($items as $item)
-        <li>
-            <a href="{{ route('items.show', $item->id) }}">
-                <strong>{{ $item->name }}</strong>
-            </a><br>
-            {{ number_format($item->price) }}円<br>
+@if(isset($page) && $page === 'mylist' && !auth()->check())
+<div class="alert alert-info">
+    マイリストを表示するにはログインしてください。
+</div>
+@elseif(isset($page) && $page === 'mylist' && $items->isEmpty())
+<div class="alert alert-info">
+    マイリストに商品がありません。商品にいいねをしてマイリストに追加してください。
+</div>
+@elseif($items->isEmpty())
+<div class="alert alert-info">
+    商品が見つかりませんでした。
+</div>
+@else
+<div class="row">
+    @foreach($items as $item)
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
             @if($item->image_path)
-            <img src="{{ asset('storage/' . $item->image_path) }}" alt="商品画像" style="width:100px;">
+            <img src="{{ asset('storage/' . $item->image_path) }}"
+                class="card-img-top" alt="商品画像"
+                style="height: 200px; object-fit: cover;">
             @endif
-            @if($item->sold_at)
-            <span style="color:red; font-weight:bold;">Sold</span>
-            @endif
-            @endforeach
-
-    </ul>
-</body>
-
-</html>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{ route('items.show', $item->id) }}" class="text-decoration-none">
+                        {{ $item->name }}
+                    </a>
+                </h5>
+                <p class="card-text text-primary fw-bold">{{ number_format($item->price) }}円</p>
+                @if($item->sold_at)
+                <span class="badge bg-danger">Sold</span>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endforeach
+</div>
+@endif
+@endsection

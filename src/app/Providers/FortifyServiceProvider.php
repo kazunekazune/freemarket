@@ -20,7 +20,6 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
     }
 
     /**
@@ -29,30 +28,27 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot()
     {
         Fortify::createUsersUsing(CreateNewUser::class);
-        // Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
-        // Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        // Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // RateLimiter::for('login', function (Request $request) {
-        //     $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
-
-        //     return Limit::perMinute(5)->by($throttleKey);
-        // });
-
-        // RateLimiter::for('two-factor', function (Request $request) {
-        //     return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        // });
-
+        // 各画面で使用するViewをFortifyに教える
         Fortify::registerView(function () {
-                return view('auth.register');
+            return view('auth.register');
         });
-        Fortify::loginView(function () {
-                return view('auth.login');
-        });
-        RateLimiter::for('login',function (Request $request) {
-                $email = (string) $request->email;
 
-                return Limit::perMinute(10)->by($email . $request->ip());
+        Fortify::loginView(function () {
+            return view('auth.login');
+        });
+
+        // メール認証画面の指定です
+        Fortify::verifyEmailView(function () {
+            return view('auth.verify-email');
+        });
+
+        // 会員登録後のリダイレクト先を設定
+        // Fortify::redirects('register', '/mypage/profile'); // 一旦コメントアウトします
+
+        RateLimiter::for('login', function (Request $request) {
+            $email = (string) $request->email;
+            return Limit::perMinute(10)->by($email . $request->ip());
         });
     }
 }

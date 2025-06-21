@@ -10,6 +10,8 @@ Route::get('/item/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/address/edit', [App\Http\Controllers\AddressController::class, 'edit'])->name('address.edit');
 Route::post('/address/update', [App\Http\Controllers\AddressController::class, 'update'])->name('address.update');
 Route::get('/items', [App\Http\Controllers\ItemController::class, 'index'])->name('items.index');
+Route::get('/purchase/{item}/success', [PurchaseController::class, 'success'])->name('purchase.success');
+Route::get('/items/search', [App\Http\Controllers\ItemController::class, 'search'])->name('items.search');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -21,6 +23,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/item/{item}/comment', [App\Http\Controllers\ItemController::class, 'comment'])->name('items.comment');
     Route::get('/purchase/{item}', [PurchaseController::class, 'show'])->name('purchase.show');
     Route::post('/purchase/{item}', [PurchaseController::class, 'store'])->name('purchase.store');
+    Route::get('/purchase/address/{item}', [PurchaseController::class, 'editAddress'])->name('purchase.address.edit');
+    Route::post('/purchase/address/{item}', [PurchaseController::class, 'updateAddress'])->name('purchase.address.update');
     Route::get('/mypage', [App\Http\Controllers\ProfileController::class, 'mypage'])->name('mypage');
     Route::get('/item/{item}/edit', [App\Http\Controllers\ItemController::class, 'edit'])->name('items.edit');
     Route::put('/item/{item}', [App\Http\Controllers\ItemController::class, 'update'])->name('items.update');

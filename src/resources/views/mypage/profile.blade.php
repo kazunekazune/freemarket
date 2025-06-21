@@ -1,89 +1,60 @@
-<!DOCTYPE html>
-<html lang="ja">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <title>プロフィール設定</title>
-    <style>
-        .container {
-            max-width: 400px;
-            margin: 40px auto;
-        }
+@section('content')
+<div class="container d-flex justify-content-center mt-5">
+    <div class="w-100" style="max-width: 600px;">
+        <h2 class="text-center mb-4">プロフィール設定</h2>
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px;
-        }
-
-        .btn {
-            background: #ff5f5f;
-            color: #fff;
-            border: none;
-            padding: 10px 0;
-            width: 100%;
-            font-size: 16px;
-        }
-
-        .error {
-            color: red;
-        }
-    </style>
-</head>
-
-<body>
-    <a href="{{ url('/') }}">
-        <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" style="height: 40px;">
-    </a>
-
-    @if(auth()->check())
-    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-        @csrf
-        <button type="submit">ログアウト</button>
-    </form>
-    @endif
-    
-    <div class="container">
-        <h1>プロフィール設定</h1>
-        @if(session('success'))
-        <div style="color:green;">{{ session('success') }}</div>
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
         @endif
-        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="form-group">
-                <label>プロフィール画像</label><br>
-                @if($user->profile_image)
-                <img src="{{ asset('storage/' . $user->profile_image) }}" alt="プロフィール画像" style="width:80px;height:80px;border-radius:50%;">
-                @endif
-                <input type="file" name="profile_image" class="form-control">
-                @error('profile_image')<div class="error">{{ $message }}</div>@enderror
+            <div class="d-flex align-items-center mb-4">
+                <img src="{{ asset('storage/' . ($user->profile_image ?? 'images/default_avatar.png')) }}" alt="User Avatar" class="rounded-circle mr-4" style="width: 100px; height: 100px; object-fit: cover;">
+                <div>
+                    <input type="file" name="profile_image" id="profile_image" class="d-none">
+                    <label for="profile_image" class="btn btn-outline-danger">画像を選択する</label>
+                </div>
             </div>
+
             <div class="form-group">
-                <label>ユーザー名</label>
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" class="form-control" required>
-                @error('name')<div class="error">{{ $message }}</div>@enderror
+                <label for="name">ユーザー名</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $user->name) }}" required>
             </div>
+
             <div class="form-group">
-                <label>郵便番号</label>
-                <input type="text" name="postal_code" value="{{ old('postal_code', $user->postal_code) }}" class="form-control">
-                @error('postal_code')<div class="error">{{ $message }}</div>@enderror
+                <label for="postal_code">郵便番号</label>
+                <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ old('postal_code', $user->postal_code ?? '') }}">
             </div>
+
             <div class="form-group">
-                <label>住所</label>
-                <input type="text" name="address" value="{{ old('address', $user->address) }}" class="form-control">
-                @error('address')<div class="error">{{ $message }}</div>@enderror
+                <label for="address">住所</label>
+                <input type="text" class="form-control" id="address" name="address" value="{{ old('address', $user->address ?? '') }}">
             </div>
+
             <div class="form-group">
-                <label>建物名</label>
-                <input type="text" name="building" value="{{ old('building', $user->building) }}" class="form-control">
-                @error('building')<div class="error">{{ $message }}</div>@enderror
+                <label for="building">建物名</label>
+                <input type="text" class="form-control" id="building" name="building" value="{{ old('building', $user->building ?? '') }}">
             </div>
-            <button type="submit" class="btn">更新する</button>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-danger w-100" style="background-color: #f54242;">更新する</button>
+            </div>
         </form>
     </div>
-</body>
-
-</html>
+</div>
+@endsection

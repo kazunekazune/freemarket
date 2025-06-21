@@ -1,30 +1,90 @@
-<!-- resources/views/auth/verify-email.blade.php -->
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
-    <a href="{{ url('/') }}">
-        <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" style="height: 40px;">
-    </a>
-
     <meta charset="UTF-8">
-    <title>メール認証</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メール認証 - {{ config('app.name', 'Laravel') }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+
+        .header {
+            background-color: #000;
+            padding: 15px 30px;
+        }
+
+        .header-logo {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 70px);
+            /* header height */
+        }
+
+        .card {
+            width: 100%;
+            max-width: 500px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .btn-custom {
+            background-color: #8c8c8c;
+            color: white;
+            border: none;
+            padding: 10px 40px;
+        }
+
+        .resend-link {
+            font-size: 14px;
+            color: #007bff;
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
 </head>
 
 <body>
-    <p>登録していただいたメールアドレスに認証メールを送付しました。<br>
-        メール認証を完了してください。</p>
-    <form method="POST" action="{{ route('verification.send') }}">
-        @csrf
-        <button type="submit">認証はこちらから</button>
+    <header class="header">
+        <a href="/" class="header-logo">COACHTECH</a>
+    </header>
 
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-            <button type="submit" style="background:none;border:none;color:#007bff;text-decoration:underline;cursor:pointer;">
-                認証メールを再送する
-            </button>
-        </form>
-    </form>
+    <div class="card-container">
+        <div class="card">
+            <div class="card-body text-center">
+                @if (session('resent'))
+                <div class="alert alert-success" role="alert">
+                    {{ __('ご登録のメールアドレスに新しい確認リンクを送信しました。') }}
+                </div>
+                @endif
+
+                <p class="mb-4">{{ __('登録していただいたメールアドレスに認証メールを送信しました。') }}<br>{{ __('メール認証を完了してください。') }}</p>
+
+                @if(config('app.env') === 'local')
+                <a href="http://localhost:8025" target="_blank" class="btn btn-custom my-3">{{ __('認証はこちらから') }}</a>
+                @endif
+
+                <form class="d-inline" method="POST" action="{{ route('verification.send') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-link p-0 m-0 align-baseline resend-link">{{ __('認証メールを再送する') }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

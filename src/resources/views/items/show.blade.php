@@ -1,140 +1,182 @@
-<!DOCTYPE html>
-<html lang="ja">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <title>{{ $item->name }} | 商品詳細</title>
-</head>
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<style>
+    .item-detail-container {
+        background-color: #fff;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-<body>
-    <a href="{{ url('/') }}">
-        <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" style="height: 40px;">
-    </a>
+    .item-image {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        object-fit: cover;
+        background-color: #f8f9fa;
+    }
 
-    @if(auth()->check())
-    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-        @csrf
-        <button type="submit">ログアウト</button>
-    </form>
-    @endif
+    .brand-name {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
 
-    <div class="item-detail">
-        <!-- 商品画像 -->
-        @if($item->image_path)
-        <img src="{{ asset('storage/' . $item->image_path) }}" alt="商品画像" style="width:300px;">
-        @endif
+    .item-name {
+        font-size: 1.75rem;
+        font-weight: bold;
+    }
 
-        <!-- 商品基本情報 -->
-        <h1>{{ $item->name }}</h1>
-        <p>ブランド名: {{ $item->brand_name ?? '未設定' }}</p>
-        <p>価格: {{ number_format($item->price) }}円</p>
+    .item-price {
+        font-size: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
 
-        <!-- いいね数 -->
-        @php
-        $liked = false;
-        if (auth()->check()) {
-        $liked = \App\Models\Like::where('user_id', auth()->id())->where('item_id', $item->id)->exists();
-        }
-        $likeCount = \App\Models\Like::where('item_id', $item->id)->count();
-        @endphp
+    .actions-row {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        color: #6c757d;
+    }
 
-        <!-- いいねボタン -->
-        @if(auth()->check())
-        @if($liked)
-        <form method="POST" action="{{ route('items.unlike', $item->id) }}">
-            @csrf
-            @method('DELETE')
-            <button type="submit">♥ いいね解除（{{ $likeCount }}）</button>
-        </form>
-        @else
-        <form method="POST" action="{{ route('items.like', $item->id) }}">
-            @csrf
-            <button type="submit">♡ いいね（{{ $likeCount }}）</button>
-        </form>
-        @endif
-        @else
-        <span>♥（{{ $likeCount }}）</span>
-        <span>※ログインでいいねできます</span>
-        @endif
+    .actions-row .action-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: inherit;
+    }
 
-        <!-- 商品情報 -->
-        <div class="item-info">
-            <h2>商品情報</h2>
-            <p>商品の説明: {{ $item->description }}</p>
-            <p>カテゴリー:
-                @if($item->categories->isNotEmpty())
-                @foreach($item->categories as $category)
-                {{ $category->name }}{{ !$loop->last ? ', ' : '' }}
-                @endforeach
-                @else
-                未設定
-                @endif
-            </p>
-            <p>商品の状態: {{ $item->condition }}</p>
+    .btn-purchase {
+        background-color: #dc3545;
+        color: white;
+        font-weight: bold;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-table .row {
+        padding: 0.75rem 0;
+    }
+
+    .info-table .row .label {
+        color: #6c757d;
+    }
+
+    .category-tag {
+        display: inline-block;
+        background-color: #e9ecef;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+    }
+
+    .comment-item {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .comment-item .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+</style>
+@endpush
+
+@section('content')
+<div class="container item-detail-container">
+    <div class="row">
+        <!-- Left: Image -->
+        <div class="col-md-5">
+            <img src="{{ asset('storage/' . $item->image_path) }}" alt="{{ $item->name }}" class="item-image">
         </div>
 
-        <!-- コメント -->
-        <div class="comments">
-            <h2>コメント（{{ $comments->count() }}）</h2>
+        <!-- Right: Details -->
+        <div class="col-md-7">
+            <p class="brand-name">{{ $item->brand->name ?? 'ノーブランド' }}</p>
+            <h1 class="item-name">{{ $item->name }}</h1>
+            <p class="item-price">¥{{ number_format($item->price) }} <small>(税込)</small></p>
 
-            <!-- コメント投稿フォーム -->
-            @if(auth()->check())
-            <form method="POST" action="{{ route('items.comment', $item->id) }}">
-                @csrf
-                <textarea name="content" rows="3" cols="40" required>{{ old('content') }}</textarea>
-                @error('content')<div style="color:red;">{{ $message }}</div>@enderror
-                <br>
-                <button type="submit">コメントする</button>
-            </form>
-            @else
-            <p>コメントするにはログインしてください。</p>
-            @endif
+            <div class="actions-row">
+                <!-- Like Button -->
+                <form action="{{ $item->isLikedBy(Auth::user()) ? route('items.unlike', $item->id) : route('items.like', $item->id) }}" method="POST" class="d-inline">
+                    @csrf
+                    @if($item->isLikedBy(Auth::user()))
+                    @method('DELETE')
+                    @endif
+                    <button type="submit" class="btn btn-link p-0 action-item">
+                        <i class="bi {{ $item->isLikedBy(Auth::user()) ? 'bi-star-fill text-warning' : 'bi-star' }}"></i>
+                        <span>{{ $item->likes->count() }}</span>
+                    </button>
+                </form>
+                <!-- Comment Icon -->
+                <div class="action-item">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>{{ $item->comments->count() }}</span>
+                </div>
+            </div>
 
-            <!-- コメント一覧 -->
-            <ul>
-                @forelse($comments as $comment)
-                <li>
-                    <strong>{{ $comment->user->name ?? '退会ユーザー' }}</strong>：
-                    {{ $comment->content }}
-                    <br>
-                    <small>{{ $comment->created_at->format('Y-m-d H:i') }}</small>
-                </li>
-                @empty
-                <li>コメントはまだありません。</li>
-                @endforelse
-            </ul>
+            <a href="{{ route('purchase.show', $item->id) }}" class="btn btn-purchase w-100">購入手続きへ</a>
+
+            <h2 class="section-title">商品説明</h2>
+            <p>{{ $item->description }}</p>
+
+            <h2 class="section-title">商品の情報</h2>
+            <div class="info-table">
+                <div class="row">
+                    <div class="col-4 label">カテゴリー</div>
+                    <div class="col-8">
+                        @foreach($item->categories as $category)
+                        <span class="category-tag">{{ $category->name }}</span>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4 label">商品の状態</div>
+                    <div class="col-8">{{ $item->condition }}</div>
+                </div>
+            </div>
+
         </div>
-
-        <!-- 購入ボタン -->
-        @if(auth()->check())
-        @if($item->sold_at)
-        <p style="color:red;">Sold</p>
-        @elseif($item->user_id === auth()->id())
-        <p>※自分の商品は購入できません</p>
-        @else
-        <form method="GET" action="{{ route('purchase.show', $item->id) }}">
-            @csrf
-            <button type="submit">購入する</button>
-        </form>
-        @endif
-        @else
-        <p>購入するにはログインしてください。</p>
-        @endif
-
-        <!-- 編集・削除ボタン -->
-        @if(auth()->check() && auth()->id() === $item->user_id)
-        <div class="item-actions">
-            <a href="{{ route('items.edit', $item) }}">編集する</a>
-            <form action="{{ route('items.destroy', $item) }}" method="POST" style="display:inline;" onsubmit="return confirm('本当に削除しますか？');">
-                @csrf
-                @method('DELETE')
-                <button type="submit">削除する</button>
-            </form>
-        </div>
-        @endif
-
-        <a href="{{ route('items.index') }}">一覧に戻る</a>
     </div>
-</body>
+    <hr class="my-4">
+    <!-- Comment Section -->
+    <div>
+        <h2 class="section-title">コメント</h2>
+        @foreach($item->comments as $comment)
+        <div class="comment-item">
+            <img src="{{ asset('storage/' . ($comment->user->profile_image ?? 'images/default_avatar.png')) }}" alt="{{ $comment->user->name }}" class="avatar">
+            <div>
+                <strong>{{ $comment->user->name }}</strong>
+                <p>{{ $comment->comment }}</p>
+            </div>
+        </div>
+        @endforeach
 
-</html>
+        @auth
+        <form action="{{ route('items.comment', $item->id) }}" method="POST" class="mt-4">
+            @csrf
+            <div class="form-group">
+                <label for="comment" class="form-label">商品へのコメント</label>
+                <textarea name="comment" id="comment" rows="4" class="form-control" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-purchase w-100 mt-3">コメントを送信する</button>
+        </form>
+        @endauth
+        @guest
+        <p class="text-center mt-4">コメントを投稿するには<a href="{{ route('login') }}">ログイン</a>が必要です。</p>
+        @endguest
+    </div>
+</div>
+@endsection

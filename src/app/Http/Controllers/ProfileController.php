@@ -46,9 +46,10 @@ class ProfileController extends Controller
         return redirect()->route('profile.edit')->with('success', 'プロフィールを更新しました');
     }
 
-    public function mypage()
+    public function mypage(Request $request)
     {
         $user = auth()->user();
+        $page = $request->input('page', 'buy'); // デフォルトは購入履歴
 
         // 購入履歴
         $purchasedItems = Item::whereIn('id', Purchase::where('user_id', $user->id)->pluck('item_id'))->get();
@@ -56,6 +57,6 @@ class ProfileController extends Controller
         // 出品履歴
         $exhibitedItems = Item::where('user_id', $user->id)->get();
 
-        return view('mypage.index', compact('user', 'purchasedItems', 'exhibitedItems'));
+        return view('mypage.index', compact('user', 'purchasedItems', 'exhibitedItems', 'page'));
     }
 }

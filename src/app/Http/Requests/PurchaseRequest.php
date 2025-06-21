@@ -25,16 +25,22 @@ class PurchaseRequest extends FormRequest
     {
         return [
             'payment_method' => 'required|in:convenience_store,credit_card',
-            // 'address' => 'required|string',
+            'item_id' => 'required|exists:items,id',
         ];
     }
 
+    /**
+     * Get custom error messages for validation rules.
+     *
+     * @return array
+     */
     public function messages()
     {
         return [
-            'payment_method.required' => '支払い方法は必須です。',
-            'payment_method.in' => '支払い方法は「コンビニ払い」または「カード払い」を選択してください。',
-            //'address.required' => '配送先住所は必須です。',
+            'payment_method.required' => '支払い方法を選択してください',
+            'payment_method.in' => '支払い方法は「コンビニ払い」または「カード払い」を選択してください',
+            'item_id.required' => '商品情報が正しくありません',
+            'item_id.exists' => '商品が見つかりません',
         ];
     }
 }

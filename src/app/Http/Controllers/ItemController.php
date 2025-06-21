@@ -15,20 +15,30 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->input('keyword');
+        $page = $request->input('page', 'all'); // デフォルトは全商品表示する
+
         $query = Item::query();
 
+        // 検索機能
         if ($keyword) {
             $query->where('name', 'like', '%' . $keyword . '%');
         }
 
-        if (auth()->check()) {
-            // ログイン中は自分が出品した商品を除外する
-            $items = \App\Models\Item::where('user_id', '!=', auth()->id())->get();
+        // マイリスト表示のとき
+        if ($page === 'mylist' && auth()->check()) {
+            $query->whereHas('likes', function ($q) {
+                $q->where('user_id', auth()->id());
+            });
         } else {
-            // 未ログインは全商品を表示
-            $items = \App\Models\Item::all();
+            // 通常の商品一覧（自分が出品した商品以外）
+            if (auth()->check()) {
+                $query->where('user_id', '!=', auth()->id());
+            }
         }
-        return view('items.index', compact('items'));
+
+        $items = $query->get();
+
+        return view('items.index', compact('items', 'page', 'keyword'));
     }
 
     public function show($id)
@@ -125,5 +135,16 @@ class ItemController extends Controller
 
         return redirect()->route('items.index')
             ->with('success', '商品を削除しました。');
+    }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->input('keyword');
+
+        $items = Item::where('name', 'like', '%' . $keyword . '%')
+            ->orWhere('description', 'like', '%' . $keyword . '%')
+            ->get();
+
+        return view('items.index', compact('items'));
     }
 }
